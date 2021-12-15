@@ -3,7 +3,7 @@ package com.hitchhikerprod.advent2021.day01;
 import java.util.List;
 
 public class Part1 {
-    final List<Integer> data;
+    private final List<Integer> data;
 
     public Part1() {
         this.data = new DataProvider().getData();

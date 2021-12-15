@@ -1,7 +1,7 @@
 package com.hitchhikerprod.advent2021.day01;
 
 public class Part2 {
-    final Integer[] data;
+    private final Integer[] data;
 
     public Part2() {
         this.data = new DataProvider().getData().toArray(new Integer[]{});
