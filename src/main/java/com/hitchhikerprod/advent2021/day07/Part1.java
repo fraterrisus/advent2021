@@ -21,7 +21,9 @@ public class Part1 {
         for (long i = stats.getMin(); i < stats.getMax(); i++) {
             final long j = i;
             final long cost = data.getCrabs().stream()
-                    .map(value -> movementCostForPart2(value, j))
+                    .map(value -> Math.abs(value - j))
+                    // For part 2, this is a triangular number function which can be computed analytically
+                    .map(value -> ((value + 1) * value) / 2)
                     .reduce(Long::sum)
                     .orElse(0L);
             if (cost < min) { min = cost; }
@@ -35,22 +37,5 @@ public class Part1 {
 
         var provider = new DataProvider(inputData);
         System.out.println(new Part1(provider).solve());
-    }
-
-    private long movementCostForPart1(long from, long to) {
-        return Math.abs(from - to);
-    }
-
-    private Long costHelper(Long distance) {
-        final Long val = costs.get(distance);
-        if (val != null) { return val; }
-
-        final Long newVal = distance + costHelper(distance - 1);
-        costs.put(distance, newVal);
-        return newVal;
-    }
-
-    private Long movementCostForPart2(long from, long to) {
-        return costHelper(Math.abs(from - to));
     }
 }
