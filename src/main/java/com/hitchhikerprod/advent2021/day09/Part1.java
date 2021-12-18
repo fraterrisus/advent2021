@@ -17,6 +17,16 @@ public class Part1 {
     }
 
     public long solve() {
+        List<Point> minima = findMinima();
+
+        long counter = minima.size();
+        for (var p : minima) {
+            counter += depths.get(p.y()).get(p.x());
+        }
+        return counter;
+    }
+
+    private List<Point> findMinima() {
         List<Point> minima = new ArrayList<>();
 
         for (int y = 0; y < depths.size(); y++) {
@@ -27,12 +37,7 @@ public class Part1 {
                 }
             }
         }
-
-        long counter = minima.size();
-        for (var p : minima) {
-            counter += depths.get(p.y()).get(p.x());
-        }
-        return counter;
+        return minima;
     }
 
     private boolean isMinimum(int x, int y, List<List<Integer>> depths) {
