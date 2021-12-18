@@ -42,7 +42,7 @@ public class Solvers {
         return -1;
     }
 
-    public List<Character> boolsToChars(boolean[] set) {
+    public static List<Character> boolsToChars(boolean[] set) {
         final List<Character> output = new ArrayList<>();
         for (int i = 0; i < set.length; i++) {
             if (set[i]) {
@@ -52,7 +52,7 @@ public class Solvers {
         return List.copyOf(output);
     }
 
-    public boolean[] charsToBools(String input) {
+    public static boolean[] charsToBools(String input) {
         final boolean[] output = new boolean[]{false, false, false, false, false, false, false};
         for (char ch : input.toCharArray()) {
             output[ch - 'a'] = true;
@@ -60,7 +60,7 @@ public class Solvers {
         return output;
     }
 
-    public List<String> combineCharLists(List<List<Character>> input) {
+    public static List<String> combineCharLists(List<List<Character>> input) {
         if (input.size() == 0) { return List.of(""); }
         final var thisSet = input.get(0);
         final var rest = input.subList(1, input.size());
@@ -69,18 +69,13 @@ public class Solvers {
                 .toList();
     }
 
-    private String charListToString(List<Character> input) {
+    private static String charListToString(List<Character> input) {
         var builder = new StringBuilder();
         input.forEach(builder::append);
         return builder.toString();
-/*
-        return input.stream()
-                .map(String::valueOf)
-                .collect(Collectors.joining());
-*/
     }
 
-    public List<String> matchPatterns(Map<Character, boolean[]> possibilities, String needle) {
+    public static List<String> matchPatterns(Map<Character, boolean[]> possibilities, String needle) {
         final List<String> wireCombinations = allPossibilities(possibilities, needle);
         final List<String> matches = new ArrayList<>();
         for (boolean[] digitPattern : DIGIT_PATTERNS) {
@@ -92,18 +87,18 @@ public class Solvers {
         return matches;
     }
 
-    private List<String> allPossibilities(Map<Character, boolean[]> possibilities, String needle) {
+    private static List<String> allPossibilities(Map<Character, boolean[]> possibilities, String needle) {
         return allPermutations(needle).stream()
                 .flatMap(perm -> combineCharLists(perm.chars()
                         .mapToObj(ch -> possibilities.get((char) ch))
-                        .map(this::boolsToChars)
+                        .map(Solvers::boolsToChars)
                         .toList())
                         .stream())
                 .distinct()
                 .toList();
     }
 
-    private List<String> allPermutations(String str) {
+    private static List<String> allPermutations(String str) {
         if (str.length() == 0) {
             ArrayList<String> baseResult = new ArrayList<>();
             baseResult.add("");
@@ -120,30 +115,5 @@ public class Solvers {
             }
         }
         return myResult;
-    }
-
-    public static void main(String[] argv) {
-        var s = new Solvers();
-
-/*
-        long startTime = System.currentTimeMillis();
-        var result = s.allPermutations("abcdefg");
-        long endTime = System.currentTimeMillis();
-        System.out.println(result.size() + " permutations, " + (endTime - startTime) + " ms");
-*/
-
-        // System.out.println(s.boolsToChars(new boolean[]{ true, true, false, false, true }));
-
-        // System.out.println(s.combineCharLists(List.of(List.of('a', 'b'), List.of('c', 'd'))));
-
-        //System.out.println(Arrays.toString(s.charsToBools("aceg")));
-
-/*
-        String needle = "bd";
-        var possibilities = new HashMap<Character, boolean[]>();
-        possibilities.put('b', new boolean[]{true, true, true, true, true, true, true});
-        possibilities.put('d', new boolean[]{true, true, true, true, true, true, true});
-        System.out.println(s.matchPatterns(possibilities, needle));
-*/
     }
 }

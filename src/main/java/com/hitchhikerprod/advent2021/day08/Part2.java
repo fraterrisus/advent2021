@@ -13,46 +13,6 @@ public class Part2 {
         this.data = provider.getData();
     }
 
-    public long solve() {
-        long counter = 0L;
-
-        for (var entry : data) {
-            final Map<Character, boolean[]> possibilities = new HashMap<>();
-            for (char c = 'a'; c <= 'g'; c++) {
-                possibilities.put(c, new boolean[]{ true, true, true, true, true, true, true });
-            }
-
-            List<String> candidates = Stream.concat(entry.patterns().stream(), entry.outputs().stream())
-                    .sorted(Comparator.comparing(String::length))
-                    .toList();
-            for (String value : candidates) {
-                reducePossibilities(possibilities, value);
-                lookForSolutions(possibilities);
-            }
-
-            for (var e : possibilities.entrySet()) {
-                System.out.println(e.getKey() + ": " + Arrays.toString(e.getValue()));
-            }
-            System.out.println();
-
-            var y = entry.outputs().stream()
-                    .map(digit -> {
-                        var x = digit.chars()
-                                .mapToObj(ci -> possibilities.get((char) ci))
-                                .reduce(new boolean[]{false, false, false, false, false, false, false},
-                                        this::joinBooleanArrays);
-                        return x;
-                    })
-                    .map(Solvers::lookupBooleanDigit)
-                    .map(String::valueOf)
-                    .collect(Collectors.joining());
-
-            counter += Integer.parseInt(y);
-        }
-
-        return counter;
-    }
-
     public static void main(String[] argv) {
         //final String inputFile = "/inputs/day08-sample.txt";
         final String inputFile = "/inputs/day08-1.txt";
@@ -60,26 +20,60 @@ public class Part2 {
         System.out.println(new Part2(provider).solve());
     }
 
-    // -------------------------------------------------------------------------------
+    public long solve() {
+        long counter = 0L;
+        for (var entry : data) {
+            final Map<Character, boolean[]> wireMap = initializeWireMap();
+            solveWireMap(wireMap, entry);
+            counter += convertOutputsToDigits(wireMap, entry);
+        }
+        return counter;
+    }
 
-    private void reducePossibilities(Map<Character, boolean[]> possibilities, String value) {
-        final Solvers s = new Solvers();
-        final var matches = s.matchPatterns(possibilities, value).stream()
+    private Map<Character, boolean[]> initializeWireMap() {
+        final Map<Character, boolean[]> wireMap = new HashMap<>();
+        for (char c = 'a'; c <= 'g'; c++) {
+            wireMap.put(c, new boolean[]{ true, true, true, true, true, true, true });
+        }
+        return wireMap;
+    }
+
+    private void solveWireMap(Map<Character, boolean[]> wireMap, DataProvider.Entry entry) {
+        Stream.concat(entry.patterns().stream(), entry.outputs().stream())
+                .sorted(Comparator.comparing(String::length))
+                .forEach(value -> {
+                    matchDigitPatterns(wireMap, value);
+                    reduceSinglesAndPairs(wireMap);
+                });
+    }
+
+    private Integer convertOutputsToDigits(Map<Character, boolean[]> wireMap, DataProvider.Entry entry) {
+        var digitString = entry.outputs().stream()
+                .map(digit -> {
+                    var x = digit.chars()
+                            .mapToObj(ci -> wireMap.get((char) ci))
+                            .reduce(new boolean[]{false, false, false, false, false, false, false},
+                                    this::joinBooleanArraysWithOr);
+                    return x;
+                })
+                .map(Solvers::lookupBooleanDigit)
+                .map(String::valueOf)
+                .collect(Collectors.joining());
+        return Integer.parseInt(digitString);
+    }
+
+    private void matchDigitPatterns(Map<Character, boolean[]> wireMap, String value) {
+        final var matches = Solvers.matchPatterns(wireMap, value).stream()
                 .flatMapToInt(String::chars)
                 .distinct()
                 .mapToObj(ci -> String.valueOf((char) ci))
                 .collect(Collectors.joining());
-        final var mask = s.charsToBools(matches);
 
-        value.chars().forEach(ch -> {
-            final var p = possibilities.get((char) ch);
-            for (int i = 0; i < p.length; i++) {
-                p[i] = p[i] && mask[i];
-            }
-        });
+        final var mask = Solvers.charsToBools(matches);
+        value.chars().forEach(ch -> wireMap.compute((char) ch, (k, v) -> joinBooleanArraysWithAnd(v, mask)));
     }
 
-    private void lookForSolutions(Map<Character, boolean[]> possibilities) {
+    private void reduceSinglesAndPairs(Map<Character, boolean[]> possibilities) {
         var truthMap = possibilities.entrySet().stream()
                 .collect(Collectors.groupingBy(e -> countTruths(e.getValue()),
                         Collectors.mapping(Map.Entry::getKey, Collectors.toList())));
@@ -111,18 +105,29 @@ public class Part2 {
         }
     }
 
-    private Consumer<Character> reduceHelper(Map<Character, boolean[]> possibilities, char index) {
-        return key -> possibilities.compute(key, (k, v) -> {
-            final var mask = possibilities.get(index);
-            final var output = new boolean[7];
-            for (int i = 0; i < 7; i++) {
-                output[i] = v[i] && !mask[i];
-            }
-            return output;
-        });
+    private Consumer<Character> reduceHelper(Map<Character, boolean[]> wireMap, char index) {
+        return key -> wireMap.compute(key, (k, v) -> joinBooleanArraysWithNotAnd(v, wireMap.get(index)));
     }
 
-    private boolean[] joinBooleanArrays(boolean[] a, boolean[] b) {
+    private boolean[] joinBooleanArraysWithAnd(boolean[] a, boolean[] b) {
+        assert(a.length == b.length);
+        final boolean c[] = new boolean[a.length];
+        for (int i = 0; i < a.length; i++) {
+            c[i] = a[i] && b[i];
+        }
+        return c;
+    }
+
+    private boolean[] joinBooleanArraysWithNotAnd(boolean[] a, boolean [] b) {
+        assert(a.length == b.length);
+        final boolean c[] = new boolean[a.length];
+        for (int i = 0; i < a.length; i++) {
+            c[i] = a[i] && !b[i];
+        }
+        return c;
+    }
+
+    private boolean[] joinBooleanArraysWithOr(boolean[] a, boolean[] b) {
         assert(a.length == b.length);
         final boolean c[] = new boolean[a.length];
         for (int i = 0; i < a.length; i++) {
