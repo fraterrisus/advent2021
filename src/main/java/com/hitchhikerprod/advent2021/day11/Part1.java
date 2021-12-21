@@ -1,10 +1,11 @@
 package com.hitchhikerprod.advent2021.day11;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.stream.Stream;
 
 public class Part1 {
-    final int[][] levels;
+    private final int[][] levels;
 
     public Part1(DataProvider data) {
         this.levels = data.getLevels();
