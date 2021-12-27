@@ -7,19 +7,23 @@ import static org.junit.Assert.*;
 public class DataProviderTest {
     @Test
     public void testParser1() {
-        final Snumber snumber = DataProvider.parseSnumber("[1,2]");
+        final Snode snumber = DataProvider.parseSnode("[1,2]");
+        assertNull(snumber.getParent());
         assertTrue(snumber.isPair());
-        final Spair spair = (Spair)snumber;
-        assertEquals(spair.left(), new Sscalar(1));
-        assertEquals(spair.right(), new Sscalar(2));
+        assertEquals(1, snumber.getLeft().getScalar());
+        assertEquals(2, snumber.getRight().getScalar());
     }
 
     @Test
     public void testParser2() {
-        final Snumber snumber = DataProvider.parseSnumber("[1,[10,20]]");
+        final Snode snumber = DataProvider.parseSnode("[1,[10,20]]");
+        assertNull(snumber.getParent());
         assertTrue(snumber.isPair());
-        final Spair spair = (Spair)snumber;
-        assertEquals(spair.left(), new Sscalar(1));
-        assertEquals(spair.right(), new Spair(10, 20));
+        assertEquals(snumber, snumber.getLeft().getParent());
+        assertEquals(1, snumber.getLeft().getScalar());
+        final Snode child = snumber.getRight();
+        assertEquals(snumber, child.getParent());
+        assertEquals(10, child.getLeft().getScalar());
+        assertEquals(20, child.getRight().getScalar());
     }
 }
