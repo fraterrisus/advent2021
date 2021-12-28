@@ -35,4 +35,8 @@ public class DataProvider {
 
         return List.copyOf(readouts);
     }
+
+    public List<List<Point>> getReadouts() {
+        return readouts;
+    }
 }

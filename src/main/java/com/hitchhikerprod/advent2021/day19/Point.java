@@ -50,6 +50,14 @@ public record Point(int x, int y, int z) {
         );
     }
 
+    public Point invert() {
+        return new Point(
+                -1 * this.x(),
+                -1 * this.y(),
+                -1 * this.z()
+        );
+    }
+
     public Point transform(int[][] matrix) {
         return new Point(
                 (this.x() * matrix[0][0]) + (this.y() * matrix[0][1]) + (this.z() * matrix[0][2]),
