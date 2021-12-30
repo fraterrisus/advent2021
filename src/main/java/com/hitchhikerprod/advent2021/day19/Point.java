@@ -1,44 +1,42 @@
 package com.hitchhikerprod.advent2021.day19;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
 public record Point(int x, int y, int z) {
     private static final Pattern PARSE_PATTERN = Pattern.compile("([-\\d]+),\\s*([-\\d]+),\\s*([-\\d]+)");
 
-    public static final List<int[][]> TRANSFORMATIONS = new ArrayList<>();
-    static {
-        TRANSFORMATIONS.add(new int[][]{ { 1, 0, 0}, { 0, 1, 0}, { 0, 0, 1} });
-        TRANSFORMATIONS.add(new int[][]{ { 1, 0, 0}, { 0, 0,-1}, { 0, 1, 0} });
-        TRANSFORMATIONS.add(new int[][]{ { 1, 0, 0}, { 0,-1, 0}, { 0, 0,-1} });
-        TRANSFORMATIONS.add(new int[][]{ { 1, 0, 0}, { 0, 0, 1}, { 0,-1, 0} });
+    public static final List<int[][]> TRANSFORMATIONS = List.of(
+            new int[][]{ { 1, 0, 0}, { 0, 1, 0}, { 0, 0, 1} },
+            new int[][]{ { 1, 0, 0}, { 0, 0,-1}, { 0, 1, 0} },
+            new int[][]{ { 1, 0, 0}, { 0,-1, 0}, { 0, 0,-1} },
+            new int[][]{ { 1, 0, 0}, { 0, 0, 1}, { 0,-1, 0} },
 
-        TRANSFORMATIONS.add(new int[][]{ {-1, 0, 0}, { 0,-1, 0}, { 0, 0,-1} });
-        TRANSFORMATIONS.add(new int[][]{ {-1, 0, 0}, { 0, 0, 1}, { 0,-1, 0} });
-        TRANSFORMATIONS.add(new int[][]{ {-1, 0, 0}, { 0, 1, 0}, { 0, 0, 1} });
-        TRANSFORMATIONS.add(new int[][]{ {-1, 0, 0}, { 0, 0,-1}, { 0, 1, 0} });
+            new int[][]{ {-1, 0, 0}, { 0,-1, 0}, { 0, 0,-1} },
+            new int[][]{ {-1, 0, 0}, { 0, 0, 1}, { 0,-1, 0} },
+            new int[][]{ {-1, 0, 0}, { 0, 1, 0}, { 0, 0, 1} },
+            new int[][]{ {-1, 0, 0}, { 0, 0,-1}, { 0, 1, 0} },
 
-        TRANSFORMATIONS.add(new int[][]{ { 1, 0, 0}, { 0, 1, 0}, { 0, 0, 1} });
-        TRANSFORMATIONS.add(new int[][]{ { 0, 0, 1}, { 0, 1, 0}, {-1, 0, 0} });
-        TRANSFORMATIONS.add(new int[][]{ {-1, 0, 0}, { 0, 1, 0}, { 0, 0,-1} });
-        TRANSFORMATIONS.add(new int[][]{ { 0, 0,-1}, { 0, 1, 0}, { 1, 0, 0} });
+            new int[][]{ { 1, 0, 0}, { 0, 1, 0}, { 0, 0, 1} },
+            new int[][]{ { 0, 0, 1}, { 0, 1, 0}, {-1, 0, 0} },
+            new int[][]{ {-1, 0, 0}, { 0, 1, 0}, { 0, 0,-1} },
+            new int[][]{ { 0, 0,-1}, { 0, 1, 0}, { 1, 0, 0} },
 
-        TRANSFORMATIONS.add(new int[][]{ {-1, 0, 0}, { 0,-1, 0}, { 0, 0,-1} });
-        TRANSFORMATIONS.add(new int[][]{ { 0, 0,-1}, { 0,-1, 0}, { 1, 0, 0} });
-        TRANSFORMATIONS.add(new int[][]{ { 1, 0, 0}, { 0,-1, 0}, { 0, 0, 1} });
-        TRANSFORMATIONS.add(new int[][]{ { 0, 0, 1}, { 0,-1, 0}, {-1, 0, 0} });
+            new int[][]{ {-1, 0, 0}, { 0,-1, 0}, { 0, 0,-1} },
+            new int[][]{ { 0, 0,-1}, { 0,-1, 0}, { 1, 0, 0} },
+            new int[][]{ { 1, 0, 0}, { 0,-1, 0}, { 0, 0, 1} },
+            new int[][]{ { 0, 0, 1}, { 0,-1, 0}, {-1, 0, 0} },
 
-        TRANSFORMATIONS.add(new int[][]{ { 1, 0, 0}, { 0, 1, 0}, { 0, 0, 1} });
-        TRANSFORMATIONS.add(new int[][]{ { 0,-1, 0}, { 1, 0, 0}, { 0, 0, 1} });
-        TRANSFORMATIONS.add(new int[][]{ {-1, 0, 0}, { 0,-1, 0}, { 0, 0, 1} });
-        TRANSFORMATIONS.add(new int[][]{ { 0, 1, 0}, {-1, 0, 0}, { 0, 0, 1} });
+            new int[][]{ { 1, 0, 0}, { 0, 1, 0}, { 0, 0, 1} },
+            new int[][]{ { 0,-1, 0}, { 1, 0, 0}, { 0, 0, 1} },
+            new int[][]{ {-1, 0, 0}, { 0,-1, 0}, { 0, 0, 1} },
+            new int[][]{ { 0, 1, 0}, {-1, 0, 0}, { 0, 0, 1} },
 
-        TRANSFORMATIONS.add(new int[][]{ {-1, 0, 0}, { 0,-1, 0}, { 0, 0,-1} });
-        TRANSFORMATIONS.add(new int[][]{ { 0, 1, 0}, {-1, 0, 0}, { 0, 0,-1} });
-        TRANSFORMATIONS.add(new int[][]{ { 1, 0, 0}, { 0, 1, 0}, { 0, 0,-1} });
-        TRANSFORMATIONS.add(new int[][]{ { 0,-1, 0}, { 1, 0, 0}, { 0, 0,-1} });
-    }
+            new int[][]{ {-1, 0, 0}, { 0,-1, 0}, { 0, 0,-1} },
+            new int[][]{ { 0, 1, 0}, {-1, 0, 0}, { 0, 0,-1} },
+            new int[][]{ { 1, 0, 0}, { 0, 1, 0}, { 0, 0,-1} },
+            new int[][]{ { 0,-1, 0}, { 1, 0, 0}, { 0, 0,-1} }
+    );
 
     public static Point from(String str) {
         var matcher = PARSE_PATTERN.matcher(str);
