@@ -1,83 +1,83 @@
 package com.hitchhikerprod.advent2021.day19;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Part1 {
-    private final List<List<Point>> readouts;
-    private final List<List<List<Point>>> revolutions;
-    private final Point[][] transformations;
+    private final Set<Scanner> scanners;
 
     public Part1(DataProvider provider) {
-        this.readouts = provider.getReadouts();
-        this.revolutions = new ArrayList<>();
-        for (var r : readouts) {
-            this.revolutions.add(generateTransformations(r));
+        scanners = new HashSet<>();
+        int id = 0;
+        boolean first = true;
+        for (var beacons : provider.getReadouts()) {
+            if (first) {
+                scanners.add(new Scanner(id, beacons, 0, new Point(0, 0, 0)));
+                first = false;
+            } else {
+                scanners.add(new Scanner(id, beacons));
+            }
+            id++;
         }
-        this.revolutions.set(0, List.of(this.readouts.get(0)));
-        final int dim = readouts.size();
-        this.transformations = new Point[dim][dim];
     }
 
     public static void main(String[] argv) {
         final String inputFile = "/inputs/day19-sample.txt";
-        final DataProvider provider = new DataProvider(inputFile);
+        final DataProvider provider = DataProvider.from(inputFile);
         System.out.println(new Part1(provider).solve());
     }
 
+    private record ScannerPair(Scanner a, Scanner b) {}
+
     public long solve() {
-        for (int i0 = 0; i0 < revolutions.size(); i0++) {
-            scanner: for (int j0 = 0; j0 < revolutions.size(); j0++) {
-                if (i0 == j0) { continue; }
-                System.out.println(i0 + "x" + j0);
-                final List<List<Point>> ti = revolutions.get(i0);
-                final List<List<Point>> tj = revolutions.get(j0);
-                for (var li : ti) {
-                    for (var lj : tj) {
-                        final OverlapDetector detector = new OverlapDetector(li, lj);
+        while (true) {
+            final Map<Boolean, Set<Scanner>> partition = scanners.stream()
+                    .collect(Collectors.groupingBy(Scanner::hasKnownLocation, Collectors.toSet()));
+
+            if (partition.get(false) == null) {
+                System.out.println("All scanners have been located.");
+                break;
+            }
+
+            ScannerPair pair = null;
+            repartition: for (Scanner fixed : partition.get(true)) {
+                final List<Point> a = fixed.beacons();
+
+                for (Scanner floating : partition.get(false)) {
+                    System.out.println("Comparing " + fixed + " -> " + floating);
+                    for (int tbIndex = 0; tbIndex < Point.TRANSFORMATIONS.size(); tbIndex++) {
+                        var tb = Point.TRANSFORMATIONS.get(tbIndex);
+                        final List<Point> b = floating.beacons().stream()
+                                .map(p -> p.transform(tb))
+                                .toList();
+                        final OverlapDetector detector = new OverlapDetector(a, b);
                         if (detector.detect()) {
-                            final var dj = detector.getDb().translate(detector.getDa().invert());
-                            // revolutions.set(i0, List.of(li));
-                            // revolutions.set(j0, List.of(lj));
-                            // var newB = lj.stream().map(p -> p.translate(dj)).toList();
-                            // transformations.set(j0, List.of(newB));
-                            transformations[i0][j0] = dj;
-                            continue scanner;
+                            final Point delta = detector.getDelta();
+                            final Point newPos = fixed.position().translate(delta);
+                            System.out.println("Assigning scanner " + floating.id() + " position " + newPos);
+                            pair = new ScannerPair(floating,
+                                    new Scanner(floating.id(), b, tbIndex, newPos));
+                            break repartition;
                         }
                     }
                 }
             }
-        }
-
-        /*
-        for (var beacon1 : readouts) {
-            var transforms1 = generateTransformations(beacon1);
-
-            for (var beacon2 : readouts) {
-                if (beacon1 == beacon2) { continue; }
-
-                var transforms2 = generateTransformations(beacon2);
-
-                for (var l1 : transforms1) {
-                    for (var l2 : transforms2) {
-                        if (detector.detect(l1, l2)) {
-                            System.out.println("found");
-                        }
-                    }
-                }
+            if (pair == null) {
+                System.out.println("No matching scanners found.");
+                break;
+            } else {
+                scanners.remove(pair.a());
+                scanners.add(pair.b());
             }
         }
-         */
 
-        System.out.println(Arrays.deepToString(transformations));
+        scanners.forEach(System.out::println);
 
         return -1L;
     }
 
-    private List<List<Point>> generateTransformations(List<Point> in) {
-        return Point.TRANSFORMATIONS.stream()
-                .map(t -> in.stream().map(p -> p.transform(t)).toList())
-                .toList();
-    }
+
 }

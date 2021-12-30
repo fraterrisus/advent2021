@@ -43,4 +43,8 @@ public class OverlapDetector {
     public Point getDb() {
         return db;
     }
+
+    public Point getDelta() {
+        return db.translate(da.invert());
+    }
 }

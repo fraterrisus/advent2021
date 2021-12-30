@@ -9,7 +9,7 @@ import static org.junit.Assert.assertEquals;
 public class DataProviderTest {
     @Test
     public void testParse() {
-        final List<List<Point>> scanners = DataProvider.parseScanners(List.of(
+        final List<String> inputLines = List.of(
                 "--- scanner 0 ---",
                 "404,-588,-901",
                 "528,-643,409",
@@ -17,7 +17,9 @@ public class DataProviderTest {
                 "--- scanner 1 ---",
                 "727,592,562",
                 "-293,-554,779"
-        ));
+        );
+        final DataProvider uut = new DataProvider(inputLines);
+        final List<List<Point>> scanners = uut.getReadouts();
 
         assertEquals(2, scanners.size());
         assertEquals(2, scanners.get(0).size());

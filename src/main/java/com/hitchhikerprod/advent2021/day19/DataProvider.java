@@ -10,13 +10,17 @@ import java.util.Objects;
 public class DataProvider {
     private final List<List<Point>> readouts;
 
-    public DataProvider(String inputFile) {
-        final InputStream inputData = this.getClass().getResourceAsStream(inputFile);
-        final BufferedReader reader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(inputData)));
-        this.readouts = parseScanners(reader.lines().toList());
+    public DataProvider(List<String> inputLines) {
+        this.readouts = parseScanners(inputLines);
     }
 
-    public static List<List<Point>> parseScanners(List<String> lines) {
+    public static DataProvider from(String inputFile) {
+        final InputStream inputData = DataProvider.class.getResourceAsStream(inputFile);
+        final BufferedReader reader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(inputData)));
+        return new DataProvider(reader.lines().toList());
+    }
+
+    public List<List<Point>> parseScanners(List<String> lines) {
         List<List<Point>> readouts = new ArrayList<>();
 
         List<Point> points = new ArrayList<>();
