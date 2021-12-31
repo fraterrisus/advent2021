@@ -26,9 +26,11 @@ public class OverlapDetector {
                 if (overlaps.size() >= 12) {
                     this.da = da;
                     this.db = db;
+/*
                     System.out.println("dA: " + da + ", dB: " + db);
                     System.out.println("Matches: ");
                     overlaps.forEach(p -> System.out.println("  " + p.translate(pa)));
+*/
                     return true;
                 }
             }

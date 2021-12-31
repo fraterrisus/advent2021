@@ -6,6 +6,8 @@ import java.util.regex.Pattern;
 public record Point(int x, int y, int z) {
     private static final Pattern PARSE_PATTERN = Pattern.compile("([-\\d]+),\\s*([-\\d]+),\\s*([-\\d]+)");
 
+    public static final int IDENTITY_TRANSFORMATION = 0;
+
     public static final List<int[][]> TRANSFORMATIONS = List.of(
             //              Xout        Yout         Zout
             //            Xi Yi Zi
@@ -34,10 +36,10 @@ public record Point(int x, int y, int z) {
             new int[][]{ { 0, 0, 1}, { 0,-1, 0}, { 1, 0, 0} },
             new int[][]{ { 0, 1, 0}, { 0, 0, 1}, { 1, 0, 0} },
 
-            new int[][]{ { 0, 0, 1}, { 0,-1, 0}, {-1, 0, 0} },
-            new int[][]{ { 0, 1, 0}, { 0, 0, 1}, {-1, 0, 0} },
-            new int[][]{ { 0, 0,-1}, { 0, 1, 0}, {-1, 0, 0} },
-            new int[][]{ { 0,-1, 0}, { 0, 0,-1}, {-1, 0, 0} }
+            new int[][]{ { 0, 0,-1}, { 0,-1, 0}, {-1, 0, 0} },
+            new int[][]{ { 0, 1, 0}, { 0, 0,-1}, {-1, 0, 0} },
+            new int[][]{ { 0, 0, 1}, { 0, 1, 0}, {-1, 0, 0} },
+            new int[][]{ { 0,-1, 0}, { 0, 0, 1}, {-1, 0, 0} }
         );
 
     public static Point from(String str) {

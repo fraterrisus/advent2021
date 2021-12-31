@@ -13,9 +13,15 @@ public class Part0 {
     private final List<Map<Integer, List<Point>>> revolutions;
     private final List<List<Map<Integer, List<OrientationMapping>>>> transformations;
 
-    public Part0() {
+    public Part0(DataProvider provider) {
         this.revolutions = new ArrayList<>();
         this.transformations = new ArrayList<>();
+    }
+
+    public static void main(String[] argv) {
+        final String inputFile = "/inputs/day19.txt";
+        final DataProvider provider = DataProvider.from(inputFile);
+        System.out.println(new Part0(provider).solve());
     }
 
     public long solve() {
