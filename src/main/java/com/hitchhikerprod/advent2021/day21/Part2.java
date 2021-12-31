@@ -44,11 +44,63 @@ public class Part2 {
     }
 
     public long solve() {
-        final GameState initialState = new GameState(provider.getPlayer1(), provider.getPlayer2());
+        Map<Player, Map<Player, Long>> stateCounts = new HashMap<>();
+        stateCounts.put(provider.getPlayer1(), new HashMap<>());
+        stateCounts.get(provider.getPlayer1()).put(provider.getPlayer2(), 1L);
 
-        // FIXME: change the hash key to half of the game state, and on each iteration, write a new table that's keyed
-        // off the *other* player's state, so you're only reading the half of the game state that's relevant to the
-        // current player.
+        int turn = 0;
+
+        while (true) {
+            System.out.println("States: " + stateCounts.size());
+            if (stateCounts.isEmpty()) { break; }
+
+            final Consumer<Long> updateWinsFunction;
+            if (turn == 0) {
+                updateWinsFunction = (w) -> wins1 += w;
+            } else {
+                updateWinsFunction = (w) -> wins2 += w;
+            }
+
+            final Map<Player, Map<Player, Long>> newStateCounts = new HashMap<>();
+
+            for (var e0 : stateCounts.entrySet()) {
+                final Player thisPlayer = e0.getKey();
+
+                // e0 = (Player) -> ((Opponent) -> (Count))
+
+                for (var f : QUANTUM_DIE_ROLLS.entrySet()) {
+                    final Player quantumPlayer = Player.copyOf(thisPlayer);
+                    quantumPlayer.advance(f.getKey());
+                    quantumPlayer.score(quantumPlayer.position());
+                    for (var e1 : e0.getValue().entrySet()) {
+                        // This scenario happens a number of times equal to (the count from the stateCounts map)
+                        // times (the number of times this quantum die roll occurs)
+                        final long numInstances = f.getValue() * e1.getValue();
+
+                        if (quantumPlayer.hasWon()) {
+                            updateWinsFunction.accept(numInstances);
+                        } else {
+                            final Player opponent = e1.getKey();
+                            newStateCounts.computeIfAbsent(opponent, k -> new HashMap<>());
+                            newStateCounts.get(opponent)
+                                    .compute(quantumPlayer, (k,v) -> v == null ? numInstances : v + numInstances);
+                        }
+                    }
+                }
+            }
+
+            stateCounts = newStateCounts;
+            turn = 1 - turn;
+        }
+
+        return LongStream.of(wins1, wins2).max().orElse(-1L);
+    }
+
+    // change the hash key to half of the game state, and on each iteration, write a new table that's keyed
+    // off the *other* player's state, so you're only reading the half of the game state that's relevant to the
+    // current player.
+    public long solveSlowly() {
+        final GameState initialState = new GameState(provider.getPlayer1(), provider.getPlayer2());
 
         Map<GameState, Long> stateCounts = new HashMap<>();
         stateCounts.put(initialState, 1L);
@@ -59,7 +111,7 @@ public class Part2 {
             if (stateCounts.isEmpty()) { break; }
 
             final Function<GameState, Player> copyPlayerFunction;
-            final Consumer<Integer> updateWinsFunction;
+            final Consumer<Long> updateWinsFunction;
             final BiFunction<GameState, Player, GameState> gameStateFunction;
             if (turn == 0) {
                 copyPlayerFunction = (s) -> Player.copyOf(s.player1());
@@ -80,7 +132,7 @@ public class Part2 {
                     p1.advance(f.getKey());
                     p1.score(p1.position());
                     if (p1.hasWon()) {
-                        updateWinsFunction.accept(f.getValue());
+                        updateWinsFunction.accept(f.getValue() * e.getValue());
                     } else {
                         final GameState newState = gameStateFunction.apply(state, p1);
                         newStateCounts.compute(newState, (k, v) -> v == null ? f.getValue() : v + f.getValue());
