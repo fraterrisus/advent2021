@@ -1,5 +1,6 @@
 package com.hitchhikerprod.advent2021.day22;
 
+import java.util.BitSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -20,7 +21,40 @@ public class Part1 {
         System.out.println(new Part1(provider).solve());
     }
 
+    private static final int DIM = 101;
+
     public long solve() {
+        final BitSet flags = new BitSet(DIM * DIM * DIM);
+
+        for (var step : steps) {
+            System.out.println(step);
+            for (int i = step.x().from(); i <= step.x().to(); i++) {
+                if (i < -50 || i > 50) { continue; }
+                for (int j = step.y().from(); j <= step.y().to(); j++) {
+                    if (j < -50 || j > 50) { continue; }
+                    for (int k = step.z().from(); k <= step.z().to(); k++) {
+                        if (k < -50 || k > 50) { continue; }
+                        final int idx = index(i, j, k);
+                        final boolean value = step.op() == RebootStep.Operation.ON;
+                        // if (flags.get(idx) != value) {
+                            // System.out.println(step.op() + " (" + i + "," + j + "," + k + ") = " + idx);
+                            flags.set(idx, value);
+                        // }
+                    }
+                }
+            }
+        }
+
+        return flags.cardinality();
+    }
+
+    private int index(int x, int y, int z) {
+        return (DIM * DIM * (z + 50)) +
+                (DIM * (y + 50)) +
+                (x + 50);
+    }
+
+    public long solveSlowly() {
         for (var step : steps) {
             System.out.println(step);
             final Set<Point> newPoints = buildPointsFromRange(step.x(), step.y(), step.z()).stream()
