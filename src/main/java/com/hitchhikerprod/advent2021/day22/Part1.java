@@ -28,11 +28,11 @@ public class Part1 {
 
         for (var step : steps) {
             System.out.println(step);
-            for (int i = step.x().from(); i <= step.x().to(); i++) {
+            for (int i = step.x().min(); i <= step.x().max(); i++) {
                 if (i < -50 || i > 50) { continue; }
-                for (int j = step.y().from(); j <= step.y().to(); j++) {
+                for (int j = step.y().min(); j <= step.y().max(); j++) {
                     if (j < -50 || j > 50) { continue; }
-                    for (int k = step.z().from(); k <= step.z().to(); k++) {
+                    for (int k = step.z().min(); k <= step.z().max(); k++) {
                         if (k < -50 || k > 50) { continue; }
                         final int idx = index(i, j, k);
                         final boolean value = step.op() == RebootStep.Operation.ON;
@@ -71,20 +71,20 @@ public class Part1 {
     }
 
     private Set<Point> buildPointsFromRange(Range x, Range y, Range z) {
-        assert(x.from() <= x.to());
-        assert(y.from() <= y.to());
-        assert(z.from() <= z.to());
+        assert(x.min() <= x.max());
+        assert(y.min() <= y.max());
+        assert(z.min() <= z.max());
 
-        if ((x.from() >= 50) || (x.to() <= -50) ||
-                (y.from() >= 50) || (y.to() <= -50) ||
-                (z.from() >= 50) || (z.to() <= -50)) {
+        if ((x.min() >= 50) || (x.max() <= -50) ||
+                (y.min() >= 50) || (y.max() <= -50) ||
+                (z.min() >= 50) || (z.max() <= -50)) {
             return new HashSet<>();
         }
 
         final Set<Point> points = new HashSet<>();
-        for (int i = x.from(); i <= x.to(); i++) {
-            for (int j = y.from(); j <= y.to(); j++) {
-                for (int k = z.from(); k <= z.to(); k++) {
+        for (int i = x.min(); i <= x.max(); i++) {
+            for (int j = y.min(); j <= y.max(); j++) {
+                for (int k = z.min(); k <= z.max(); k++) {
                     points.add(new Point(i, j, k));
                 }
             }

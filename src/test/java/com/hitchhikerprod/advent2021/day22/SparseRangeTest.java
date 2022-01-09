@@ -32,4 +32,38 @@ public class SparseRangeTest {
         uut.setPoint(-5,-5,-5);
         uut.setPoint(0,0,0);
     }
+
+    @Test
+    public void testSetRange() {
+        final SparseRange uut = new SparseRange(0,10,0,5,0,5);
+
+        uut.setPoint(2,0,0);
+        uut.setPoint(4,0,0);
+        uut.setPoint(8,0,0);
+
+        uut.setRange(1,6,0,0);
+        assertFalse(uut.getPoint(0,0,0));
+        assertTrue(uut.getPoint(1,0,0));
+        assertTrue(uut.getPoint(2,0,0));
+        assertTrue(uut.getPoint(4,0,0));
+        assertTrue(uut.getPoint(6,0,0));
+        assertFalse(uut.getPoint(7,0,0));
+        assertTrue(uut.getPoint(8,0,0));
+    }
+
+    @Test
+    public void testClearRange() {
+        final SparseRange uut = new SparseRange(0,10,0,5,0,5);
+
+        uut.setRange(2,6,0,0);
+        uut.clearRange(3,6,0,0);
+
+        assertFalse(uut.getPoint(1,0,0));
+        assertTrue(uut.getPoint(2,0,0));
+        assertFalse(uut.getPoint(3,0,0));
+        assertFalse(uut.getPoint(4,0,0));
+        assertFalse(uut.getPoint(5,0,0));
+        assertFalse(uut.getPoint(6,0,0));
+        assertFalse(uut.getPoint(7,0,0));
+    }
 }

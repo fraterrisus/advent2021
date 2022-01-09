@@ -1,5 +1,6 @@
 package com.hitchhikerprod.advent2021.day22;
 
+import java.util.Set;
 import java.util.TreeSet;
 
 public class SparseRange {
@@ -17,6 +18,9 @@ public class SparseRange {
         public int compareTo(InflectionPoint that) {
             return Long.compare(this.index(), that.index());
         }
+
+        public static InflectionPoint on(long index) { return new InflectionPoint(index, true); }
+        public static InflectionPoint off(long index) { return new InflectionPoint(index, false); }
     }
 
     public SparseRange(long xMin, long xMax, long yMin, long yMax, long zMin, long zMax) {
@@ -51,6 +55,49 @@ public class SparseRange {
         final InflectionPoint lower = inflections.floor(point);
         if (lower == null) { return false; }
         return lower.lit();
+    }
+
+    public void setRange(long x0, long x1, long y, long z) {
+        final long index0 = index(x0, y, z);
+        final long index1 = index(x1, y, z);
+        final InflectionPoint p0 = InflectionPoint.on(index0);
+        final InflectionPoint p1 = InflectionPoint.off(index1 + 1);
+
+        final InflectionPoint lower = inflections.lower(p0); // <
+        final InflectionPoint upper = inflections.higher(p1); // >
+
+        final Set<InflectionPoint> insidePoints = inflections.subSet(p0, true, p1, true);
+        inflections.removeAll(Set.copyOf(insidePoints));
+
+        if (lower == null || !lower.lit()) {
+            // Points to our left are OFF; add an ON point here.
+            inflections.add(p0);
+        }
+
+        if (upper == null || upper.lit()) {
+            inflections.add(p1);
+        }
+    }
+
+    public void clearRange(long x0, long x1, long y, long z) {
+        final long index0 = index(x0, y, z);
+        final long index1 = index(x1, y, z);
+        final InflectionPoint p0 = InflectionPoint.off(index0);
+        final InflectionPoint p1 = InflectionPoint.on(index1 + 1);
+
+        final InflectionPoint lower = inflections.lower(p0); // <
+        final InflectionPoint upper = inflections.higher(p1); // >
+
+        final Set<InflectionPoint> insidePoints = inflections.subSet(p0, true, p1, true);
+        inflections.removeAll(Set.copyOf(insidePoints));
+
+        if (lower != null && lower.lit()) {
+            inflections.add(p0);
+        }
+
+        if (upper != null && !upper.lit()) {
+            inflections.add(p1);
+        }
     }
 
     // Setting (5,ON) if the LOWER,HIGHER points are...
